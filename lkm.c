@@ -41,6 +41,12 @@ static struct kprobe kp = {.symbol_name = "kallsyms_lookup_name"};
 
 #include "debug.h"
 
+void *my_xlate_dev_mem_ptr(phys_addr_t phys);
+void my_unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+int find_symbols(void);
+int __init fmem_init(void);
+void __exit fmem_cleanup(void);
+
 #ifdef CONFIG_IA64
 #include <linux/efi.h>
 #endif
@@ -482,7 +488,7 @@ static int __init chr_dev_init(void) {
   if (register_chrdev(FMEM_MAJOR, "fmem", &memory_fops))
     printk("unable to get major %d for memory devs\n", FMEM_MAJOR);
 
-  mem_class = class_create(THIS_MODULE, "fmem");
+  mem_class = class_create("fmem");
   for (i = 0; i < ARRAY_SIZE(devlist); i++) {
     device_create(mem_class, NULL, MKDEV(FMEM_MAJOR, devlist[i].minor), NULL,
                   devlist[i].name);
